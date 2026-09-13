@@ -2,12 +2,14 @@
  * Wire Terminal — markets desk client
  *
  * Prefer same-origin /proxy (python3 serve.py). Falls back to public CORS
- * proxies. On total failure: UNAVAILABLE / DEMO badges — never silent fakes.
+ * proxies + Stooq CSV backup. On total failure: UNAVAILABLE / DEMO badges —
+ * never silent fakes. Clocks are 12-hour with AM/PM. Data refresh ~1s with
+ * in-flight guard (no overlapping stampede).
  */
 (function () {
   "use strict";
 
-  const REFRESH_MS = 45000;
+  const REFRESH_MS = 1000;
 
   const INDICES = [
     { id: "^GSPC", label: "S&P 500", short: "SPX" },
@@ -20,6 +22,22 @@
 
   const SYMBOL_FALLBACKS = {
     "^STOXX": ["^STOXX50E", "EXSA.DE"],
+  };
+
+  /** Yahoo → Stooq last-quote symbols (backup when Yahoo proxies fail). */
+  const STOOQ_MAP = {
+    "^GSPC": "^spx",
+    "^DJI": "^dji",
+    "^IXIC": ["^ndq", "^ixic", "^ndx"],
+    "^N225": "^nkx",
+    "^HSI": "^hsi",
+    "^STOXX": ["^sxxp", "^sx5e"],
+    "ES=F": "es.f",
+    "NQ=F": "nq.f",
+    "CL=F": "cl.f",
+    "BZ=F": "brn.f",
+    "^TNX": ["10yty.b", "us10y"],
+    "ZN=F": ["zn.f", "ty.f"],
   };
 
   const FUTURES = [
@@ -60,14 +78,14 @@
       tag: "equities",
       src: "WIRE",
       headline:
-        "Index strip populates from Yahoo Finance when fetch succeeds (use serve.py)",
+        "Index strip populates from Yahoo Finance when fetch succeeds",
       seed: true,
     },
     {
       id: "seed-3",
       tag: "futures",
       src: "WIRE",
-      headline: "ES / NQ / oil / US10Y refresh on the same ~45s cycle as indices",
+      headline: "ES / NQ / oil / US10Y refresh on the same ~1s cycle as indices",
       seed: true,
     },
     {
@@ -75,7 +93,7 @@
       tag: "macro",
       src: "WIRE",
       headline:
-        "News: CNBC / MarketWatch / BBC / Yahoo RSS via local /proxy or public JSON",
+        "News: CNBC / MarketWatch / BBC / Yahoo RSS via proxy fallbacks",
       seed: true,
     },
   ];
@@ -144,11 +162,17 @@
     },
   ];
 
+  /** Personal-finance / lifestyle fluff — drop from the wire. */
+  const NEWS_DENY =
+    /retirement|annuit(y|ies)|social security|cola\b|401\s*\(?k\)?|roth\b|what should i do with my money|how to (save|invest|budget)|best (credit cards?|savings|cd rates)|personal finance|nest egg|side hustle|millionaire next door|fire movement|passive income tips|should you (buy|sell|refinance)|refinance your|mortgage tips|debt payoff|emergency fund|lifestyle (inflation|creep)|medicare (advantage|supplement)|long[- ]term care insurance|penny stocks? tip/i;
+
   let newsFilter = "all";
   let newsItems = [];
   let newsStatus = "SEED";
   let useLocalProxy = false;
   let refreshTimer = null;
+  let refreshInFlight = false;
+  let refreshQueued = false;
 
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => document.querySelectorAll(sel);
@@ -157,11 +181,23 @@
     return String(n).padStart(2, "0");
   }
 
+  /** 12-hour clock with AM/PM, e.g. 3:39:49 PM */
   function formatClock(d, utc) {
-    const h = utc ? d.getUTCHours() : d.getHours();
+    const h24 = utc ? d.getUTCHours() : d.getHours();
     const m = utc ? d.getUTCMinutes() : d.getMinutes();
     const s = utc ? d.getUTCSeconds() : d.getSeconds();
-    return `${pad(h)}:${pad(m)}:${pad(s)}`;
+    const ampm = h24 >= 12 ? "PM" : "AM";
+    let h12 = h24 % 12;
+    if (h12 === 0) h12 = 12;
+    return h12 + ":" + pad(m) + ":" + pad(s) + " " + ampm;
+  }
+
+  function formatTimeShort(d) {
+    const h24 = d.getHours();
+    const ampm = h24 >= 12 ? "PM" : "AM";
+    let h12 = h24 % 12;
+    if (h12 === 0) h12 = 12;
+    return h12 + ":" + pad(d.getMinutes()) + " " + ampm;
   }
 
   function updateSessions(now) {
@@ -196,10 +232,11 @@
           month: "short",
           day: "numeric",
           year: "numeric",
-        }) +
-        " · " +
-        formatClock(now, true) +
-        " UTC";
+          hour: "numeric",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        }) + " · " + formatClock(now, true) + " UTC";
     }
     updateSessions(now);
   }
@@ -260,32 +297,81 @@
     return "/proxy?url=" + encodeURIComponent(url);
   }
 
+  /** Try in order — corsproxy.io free for github.io; allorigins; codetabs. */
   const CORS_PROXIES = [
-    (url) =>
-      "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
+    function (url) {
+      return "https://corsproxy.io/?" + encodeURIComponent(url);
+    },
+    function (url) {
+      return "https://corsproxy.io/?url=" + encodeURIComponent(url);
+    },
+    function (url) {
+      return "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+    },
+    function (url) {
+      return "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(url);
+    },
   ];
 
+  function looksLikeUsefulBody(text) {
+    if (!text || text.length < 8) return false;
+    const t = text.trim();
+    if (t.charAt(0) === "{" || t.charAt(0) === "[") return true;
+    if (/^Symbol,/i.test(t) || /^"[Ss]ymbol"/i.test(t)) return true;
+    if (t.indexOf("<rss") !== -1 || t.indexOf("<feed") !== -1) return true;
+    if (t.indexOf("<item") !== -1 || t.indexOf("<channel") !== -1) return true;
+    if (t.indexOf('"chart"') !== -1 || t.indexOf('"meta"') !== -1) return true;
+    if (/^[\w.^]+,/.test(t) && t.split("\n").length >= 2) return true;
+    return false;
+  }
+
   async function fetchText(url, timeoutMs) {
-    timeoutMs = timeoutMs || 14000;
+    timeoutMs = timeoutMs || 10000;
     const attempts = [];
     if (useLocalProxy) attempts.push(localProxyUrl(url));
-    // Direct (works only if server sends ACAO — usually not for Yahoo)
     attempts.push(url);
-    CORS_PROXIES.forEach((fn) => attempts.push(fn(url)));
+    CORS_PROXIES.forEach(function (fn) {
+      attempts.push(fn(url));
+    });
+    // allorigins JSON envelope as last resort
+    attempts.push(
+      "https://api.allorigins.win/get?url=" + encodeURIComponent(url)
+    );
 
     let lastErr;
-    for (const endpoint of attempts) {
+    for (let i = 0; i < attempts.length; i++) {
+      const endpoint = attempts[i];
       const controller = new AbortController();
-      const t = setTimeout(() => controller.abort(), timeoutMs);
+      const t = setTimeout(function () {
+        controller.abort();
+      }, timeoutMs);
       try {
         const res = await fetch(endpoint, {
           signal: controller.signal,
           cache: "no-store",
-          headers: { Accept: "application/json, application/xml, text/xml, */*" },
+          headers: {
+            Accept: "application/json, application/xml, text/xml, text/csv, */*",
+          },
         });
         clearTimeout(t);
         if (!res.ok) throw new Error("HTTP " + res.status);
-        return await res.text();
+        let text = await res.text();
+        // Unwrap allorigins /get envelope
+        if (
+          endpoint.indexOf("allorigins.win/get") !== -1 &&
+          text.trim().charAt(0) === "{"
+        ) {
+          try {
+            const wrap = JSON.parse(text);
+            if (typeof wrap.contents === "string") text = wrap.contents;
+          } catch (_) {
+            /* keep raw */
+          }
+        }
+        if (!looksLikeUsefulBody(text)) {
+          throw new Error("empty/useless body");
+        }
+        return text;
       } catch (e) {
         clearTimeout(t);
         lastErr = e;
@@ -294,24 +380,25 @@
     throw lastErr || new Error("fetch failed");
   }
 
-  async function fetchJson(url) {
-    return JSON.parse(await fetchText(url));
+  async function fetchJson(url, timeoutMs) {
+    return JSON.parse(await fetchText(url, timeoutMs));
   }
 
-  async function fetchYahooQuote(symbol) {
-    const url =
-      "https://query1.finance.yahoo.com/v8/finance/chart/" +
-      encodeURIComponent(symbol) +
-      "?interval=1d&range=5d";
-    const data = await fetchJson(url);
-    const result = data && data.chart && data.chart.result && data.chart.result[0];
+  function parseYahooChart(data) {
+    const result =
+      data && data.chart && data.chart.result && data.chart.result[0];
     if (!result) throw new Error("No chart result");
     const meta = result.meta || {};
-    const quotes = result.indicators && result.indicators.quote && result.indicators.quote[0];
+    const quotes =
+      result.indicators &&
+      result.indicators.quote &&
+      result.indicators.quote[0];
     const closes =
-      (quotes && quotes.close && quotes.close.filter(function (c) {
-        return c != null;
-      })) ||
+      (quotes &&
+        quotes.close &&
+        quotes.close.filter(function (c) {
+          return c != null;
+        })) ||
       [];
     const price =
       meta.regularMarketPrice != null
@@ -344,26 +431,123 @@
     }
 
     return {
-      symbol: symbol,
+      symbol: meta.symbol,
       price: price,
       change: change,
       changePct: changePct,
       currency: meta.currency,
-      name: meta.shortName || meta.longName || symbol,
+      name: meta.shortName || meta.longName || meta.symbol,
+      source: "yahoo",
     };
   }
 
-  async function fetchYahooWithFallback(primary) {
-    const list = [primary].concat(SYMBOL_FALLBACKS[primary] || []);
+  async function fetchYahooQuote(symbol) {
+    const url =
+      "https://query1.finance.yahoo.com/v8/finance/chart/" +
+      encodeURIComponent(symbol) +
+      "?interval=1d&range=5d";
+    const data = await fetchJson(url, 9000);
+    return parseYahooChart(data);
+  }
+
+  function parseStooqCsv(text) {
+    const lines = text
+      .trim()
+      .split(/\r?\n/)
+      .filter(function (l) {
+        return l.trim().length;
+      });
+    if (lines.length < 2) throw new Error("Stooq empty");
+    const header = lines[0].toLowerCase().split(",");
+    const row = lines[1].split(",");
+    function col(name) {
+      const i = header.indexOf(name);
+      return i >= 0 ? row[i] : null;
+    }
+    let close = parseFloat(col("close"));
+    if (Number.isNaN(close)) {
+      // fallback positional: Symbol,Date,Time,Open,High,Low,Close,Volume
+      close = parseFloat(row[6]);
+    }
+    if (Number.isNaN(close)) throw new Error("Stooq no close");
+    const open = parseFloat(col("open") != null ? col("open") : row[3]);
+    let changePct = null;
+    let change = null;
+    if (!Number.isNaN(open) && open !== 0) {
+      change = close - open;
+      changePct = (change / open) * 100;
+    }
+    return {
+      symbol: (col("symbol") || row[0] || "").replace(/"/g, ""),
+      price: close,
+      change: change,
+      changePct: changePct,
+      source: "stooq",
+    };
+  }
+
+  async function fetchStooqQuote(stooqSym) {
+    const url =
+      "https://stooq.com/q/l/?s=" +
+      encodeURIComponent(stooqSym) +
+      "&f=sd2t2ohlcv&h&e=csv";
+    const text = await fetchText(url, 8000);
+    if (/does not exist|nie istnieje|verify your browser/i.test(text)) {
+      throw new Error("Stooq blocked/missing");
+    }
+    return parseStooqCsv(text);
+  }
+
+  async function fetchQuoteForSymbol(primary) {
+    const yahooList = [primary].concat(SYMBOL_FALLBACKS[primary] || []);
     let lastErr;
-    for (let i = 0; i < list.length; i++) {
+    for (let i = 0; i < yahooList.length; i++) {
       try {
-        return await fetchYahooQuote(list[i]);
+        const q = await fetchYahooQuote(yahooList[i]);
+        q.requested = primary;
+        return q;
       } catch (e) {
         lastErr = e;
       }
     }
+
+    const mapped = STOOQ_MAP[primary];
+    if (mapped) {
+      const list = Array.isArray(mapped) ? mapped : [mapped];
+      for (let j = 0; j < list.length; j++) {
+        try {
+          const q = await fetchStooqQuote(list[j]);
+          q.requested = primary;
+          return q;
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+    }
+
     throw lastErr || new Error("Quote failed");
+  }
+
+  /** Bound concurrency so 1s refresh + many symbols don't stampede proxies. */
+  async function mapPool(items, limit, worker) {
+    const results = new Array(items.length);
+    let next = 0;
+    async function run() {
+      while (next < items.length) {
+        const i = next++;
+        try {
+          results[i] = { status: "fulfilled", value: await worker(items[i], i) };
+        } catch (e) {
+          results[i] = { status: "rejected", reason: e };
+        }
+      }
+    }
+    const runners = [];
+    for (let r = 0; r < Math.min(limit, items.length); r++) {
+      runners.push(run());
+    }
+    await Promise.all(runners);
+    return results;
   }
 
   /* —— Render indices / futures —— */
@@ -481,6 +665,10 @@
 
   /* —— News —— */
 
+  function isDeniedHeadline(title) {
+    return NEWS_DENY.test(title || "");
+  }
+
   function classifyHeadline(title) {
     const t = (title || "").toLowerCase();
     if (
@@ -504,28 +692,32 @@
     const parser = new DOMParser();
     const doc = parser.parseFromString(xmlText, "text/xml");
     const items = Array.prototype.slice.call(doc.querySelectorAll("item"), 0, 25);
-    return items.map(function (item, i) {
-      const title =
-        (item.querySelector("title") &&
-          item.querySelector("title").textContent.trim()) ||
-        "Untitled";
-      const linkEl = item.querySelector("link");
-      const link = (linkEl && linkEl.textContent.trim()) || "";
-      const pub =
-        (item.querySelector("pubDate") && item.querySelector("pubDate").textContent) ||
-        "";
-      let d = pub ? new Date(pub) : new Date();
-      if (Number.isNaN(d.getTime())) d = new Date();
-      return {
-        id: "rss-" + sourceLabel + "-" + i + "-" + d.getTime(),
-        time: d,
-        tag: classifyHeadline(title),
-        src: sourceLabel,
-        headline: title,
-        link: link,
-        seed: false,
-      };
-    });
+    return items
+      .map(function (item, i) {
+        const title =
+          (item.querySelector("title") &&
+            item.querySelector("title").textContent.trim()) ||
+          "Untitled";
+        if (isDeniedHeadline(title)) return null;
+        const linkEl = item.querySelector("link");
+        const link = (linkEl && linkEl.textContent.trim()) || "";
+        const pub =
+          (item.querySelector("pubDate") &&
+            item.querySelector("pubDate").textContent) ||
+          "";
+        let d = pub ? new Date(pub) : new Date();
+        if (Number.isNaN(d.getTime())) d = new Date();
+        return {
+          id: "rss-" + sourceLabel + "-" + i + "-" + d.getTime(),
+          time: d,
+          tag: classifyHeadline(title),
+          src: sourceLabel,
+          headline: title,
+          link: link,
+          seed: false,
+        };
+      })
+      .filter(Boolean);
   }
 
   async function fetchNews() {
@@ -534,7 +726,6 @@
     for (let f = 0; f < NEWS_FEEDS.length; f++) {
       const feed = NEWS_FEEDS[f];
       try {
-        // rss2json when no local proxy
         if (!useLocalProxy) {
           try {
             const rss2 =
@@ -543,20 +734,22 @@
             const controller = new AbortController();
             const t = setTimeout(function () {
               controller.abort();
-            }, 9000);
+            }, 8000);
             const res = await fetch(rss2, { signal: controller.signal });
             clearTimeout(t);
             if (res.ok) {
               const json = await res.json();
               if (json.status === "ok" && Array.isArray(json.items)) {
                 json.items.slice(0, 12).forEach(function (it, i) {
+                  const title = (it.title || "").trim();
+                  if (!title || isDeniedHeadline(title)) return;
                   const d = it.pubDate ? new Date(it.pubDate) : new Date();
                   collected.push({
                     id: "r2j-" + feed.label + "-" + i + "-" + d.getTime(),
                     time: Number.isNaN(d.getTime()) ? new Date() : d,
-                    tag: classifyHeadline(it.title),
+                    tag: classifyHeadline(title),
                     src: feed.label,
-                    headline: (it.title || "").trim(),
+                    headline: title,
                     link: it.link || it.url || "",
                     seed: false,
                   });
@@ -569,7 +762,7 @@
           }
         }
 
-        const xml = await fetchText(feed.url, 12000);
+        const xml = await fetchText(feed.url, 10000);
         collected.push.apply(collected, parseRssItems(xml, feed.label));
       } catch (_) {
         /* next feed */
@@ -600,7 +793,7 @@
       d.getFullYear() === now.getFullYear() &&
       d.getMonth() === now.getMonth() &&
       d.getDate() === now.getDate();
-    if (sameDay) return pad(d.getHours()) + ":" + pad(d.getMinutes());
+    if (sameDay) return formatTimeShort(d);
     return pad(d.getMonth() + 1) + "/" + pad(d.getDate());
   }
 
@@ -710,13 +903,7 @@
   function setLastRefresh(date) {
     const el = $("#last-refresh");
     if (!el) return;
-    el.textContent =
-      "LAST " +
-      pad(date.getHours()) +
-      ":" +
-      pad(date.getMinutes()) +
-      ":" +
-      pad(date.getSeconds());
+    el.textContent = "LAST " + formatClock(date, false);
   }
 
   /** Illustrative placeholders only — shown with DEMO badges. */
@@ -752,16 +939,13 @@
 
     const map = {};
     let ok = 0;
-    const results = await Promise.allSettled(
-      symbols.map(async function (sym) {
-        const q = await fetchYahooWithFallback(sym);
-        return { sym: sym, q: q };
-      })
-    );
+    const results = await mapPool(symbols, 4, async function (sym) {
+      return { sym: sym, q: await fetchQuoteForSymbol(sym) };
+    });
 
     results.forEach(function (r, i) {
       const sym = symbols[i];
-      if (r.status === "fulfilled") {
+      if (r && r.status === "fulfilled") {
         map[sym] = r.value.q;
         ok++;
       } else {
@@ -782,7 +966,7 @@
 
     renderIndices(map, "live");
     renderFutures(map, "live");
-    setMarketStatus("live");
+    setMarketStatus(ok < symbols.length ? "live" : "live");
   }
 
   function seedNewsWithTimes() {
@@ -811,6 +995,12 @@
   }
 
   async function refreshAll() {
+    if (refreshInFlight) {
+      refreshQueued = true;
+      return;
+    }
+    refreshInFlight = true;
+    refreshQueued = false;
     const btn = $("#btn-refresh");
     if (btn) btn.classList.add("spinning");
     try {
@@ -818,13 +1008,19 @@
       const hint = $("#footer-hint");
       if (hint) {
         hint.textContent = useLocalProxy
-          ? "Auto-refresh ~45s · Local proxy ON · Yahoo + RSS"
-          : "Auto-refresh ~45s · Prefer: python3 serve.py (local proxy)";
+          ? "Auto-refresh 1s · Local proxy ON · Yahoo + Stooq + RSS"
+          : "Auto-refresh 1s · CORS proxies · Yahoo + Stooq backup";
       }
       await Promise.all([loadMarkets(), loadNews()]);
       setLastRefresh(new Date());
     } finally {
       if (btn) btn.classList.remove("spinning");
+      refreshInFlight = false;
+      if (refreshQueued) {
+        refreshQueued = false;
+        // Defer slightly so we don't immediately re-enter a hammer loop
+        setTimeout(refreshAll, 50);
+      }
     }
   }
 

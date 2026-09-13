@@ -36,7 +36,7 @@ or open `index.html` via `file://`. Without the proxy, market/news fetches often
 | News wire | Chronological flashes (macro / equities / futures), newest first, filters |
 | Watch next | Catalysts (CPI, FOMC, earnings, oil, session opens) |
 
-Auto-refresh ≈ **45 seconds**. Status pills: **LIVE** / **DEMO** / **UNAVAILABLE** / **PARTIAL**.
+Auto-refresh ≈ **1 second** (in-flight guard skips overlaps). Status pills: **LIVE** / **DEMO** / **UNAVAILABLE** / **PARTIAL**.
 
 ## Data sources (free / public)
 
@@ -56,7 +56,8 @@ Auto-refresh ≈ **45 seconds**. Status pills: **LIVE** / **DEMO** / **UNAVAILAB
 
 1. App probes `/api/health` — if `serve.py` is running, **local proxy ON**.
 2. Quotes/RSS go through `/proxy?url=…` (allowlisted hosts only).
-3. If you use plain `http.server`, the client tries direct fetch + `allorigins` / `rss2json`; on failure → DEMO / UNAVAILABLE.
+3. If you use plain `http.server` or GitHub Pages, the client tries direct fetch, then CORS proxies in order (`corsproxy.io`, `allorigins`, `codetabs`), then Stooq CSV backup per symbol; news via `rss2json` / RSS. On failure → DEMO / UNAVAILABLE.
+4. Clocks are **12-hour with AM/PM**.
 
 ## Files
 
