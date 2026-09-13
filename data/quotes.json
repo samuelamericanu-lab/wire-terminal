@@ -1,0 +1,65 @@
+{
+  "updated": "2026-09-13T22:53:44Z",
+  "quotes": {
+    "^GSPC": {
+      "price": 7656.98,
+      "change": 65.288547,
+      "changePct": 0.86
+    },
+    "^IXIC": {
+      "price": 26333.035,
+      "change": 251.426704,
+      "changePct": 0.964
+    },
+    "^DJI": {
+      "price": 52573.29,
+      "change": 509.186928,
+      "changePct": 0.978
+    },
+    "^STOXX50E": {
+      "price": 6325.13,
+      "change": 56.169883,
+      "changePct": 0.896
+    },
+    "^N225": {
+      "price": 64011.34,
+      "change": -1259.731683,
+      "changePct": -1.93
+    },
+    "^HSI": {
+      "price": 24805.63,
+      "change": -148.979016,
+      "changePct": -0.597
+    },
+    "ES=F": {
+      "price": 7617.75,
+      "change": -41.744244,
+      "changePct": -0.545
+    },
+    "NQ=F": {
+      "price": 29081.75,
+      "change": -305.33178,
+      "changePct": -1.039
+    },
+    "CL=F": {
+      "price": 102.39,
+      "change": 2.340166,
+      "changePct": 2.339
+    },
+    "BZ=F": {
+      "price": 107.75,
+      "change": 3.140381,
+      "changePct": 3.002
+    },
+    "^TNX": {
+      "price": 4.975,
+      "change": 0.030999,
+      "changePct": 0.627
+    },
+    "ZN=F": {
+      "price": 106.171875,
+      "change": 0.062499,
+      "changePct": 0.0589
+    }
+  }
+}

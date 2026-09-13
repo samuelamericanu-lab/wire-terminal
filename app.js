@@ -1,10 +1,10 @@
 /**
  * Wire Terminal — markets desk client
  *
- * Prefer same-origin /proxy (python3 serve.py). Falls back to public CORS
- * proxies + Stooq CSV backup. On total failure: UNAVAILABLE / DEMO badges —
- * never silent fakes. Clocks are 12-hour with AM/PM. Data refresh ~1s with
- * in-flight guard (no overlapping stampede).
+ * PRIMARY: same-origin data/quotes.json + data/news.json (GitHub Pages safe).
+ * Optional live Yahoo via local /proxy or CORS proxies; if live fails, keep
+ * same-origin JSON — never UNAVAILABLE when static prices exist.
+ * Clocks are 12-hour with AM/PM. Refresh ~1s with in-flight guard.
  */
 (function () {
   "use strict";
@@ -15,13 +15,13 @@
     { id: "^GSPC", label: "S&P 500", short: "SPX" },
     { id: "^IXIC", label: "NASDAQ", short: "COMP" },
     { id: "^DJI", label: "DOW", short: "DJI" },
-    { id: "^STOXX", label: "STOXX 600", short: "SXXP" },
+    { id: "^STOXX50E", label: "STOXX 50", short: "SX5E" },
     { id: "^N225", label: "NIKKEI", short: "NKY" },
     { id: "^HSI", label: "HANG SENG", short: "HSI" },
   ];
 
   const SYMBOL_FALLBACKS = {
-    "^STOXX": ["^STOXX50E", "EXSA.DE"],
+    "^STOXX50E": ["^STOXX", "EXSA.DE"],
   };
 
   /** Yahoo → Stooq last-quote symbols (backup when Yahoo proxies fail). */
@@ -31,7 +31,7 @@
     "^IXIC": ["^ndq", "^ixic", "^ndx"],
     "^N225": "^nkx",
     "^HSI": "^hsi",
-    "^STOXX": ["^sxxp", "^sx5e"],
+    "^STOXX50E": ["^sx5e", "^sxxp"],
     "ES=F": "es.f",
     "NQ=F": "nq.f",
     "CL=F": "cl.f",
@@ -164,7 +164,7 @@
 
   /** Personal-finance / lifestyle fluff — drop from the wire. */
   const NEWS_DENY =
-    /retirement|annuit(y|ies)|social security|cola\b|401\s*\(?k\)?|roth\b|what should i do with my money|how to (save|invest|budget)|best (credit cards?|savings|cd rates)|personal finance|nest egg|side hustle|millionaire next door|fire movement|passive income tips|should you (buy|sell|refinance)|refinance your|mortgage tips|debt payoff|emergency fund|lifestyle (inflation|creep)|medicare (advantage|supplement)|long[- ]term care insurance|penny stocks? tip/i;
+    /retirement|annuit(y|ies)|social security|cola\b|401\s*\(?k\)?|roth\b|when you die|what should i do|estate (plan|tax)|trade a job|work[- ]life balance|what should i do with my money|how to (save|invest|budget)|best (credit cards?|savings|cd rates)|personal finance|nest egg|side hustle|millionaire next door|fire movement|passive income tips|should you (buy|sell|refinance)|refinance your|mortgage tips|debt payoff|emergency fund|lifestyle (inflation|creep)|medicare (advantage|supplement)|long[- ]term care insurance|penny stocks? tip/i;
 
   let newsFilter = "all";
   let newsItems = [];
@@ -912,7 +912,7 @@
       "^GSPC": { price: 5620.0, changePct: 0.42 },
       "^IXIC": { price: 17850.0, changePct: 0.65 },
       "^DJI": { price: 41200.0, changePct: 0.18 },
-      "^STOXX": { price: 520.0, changePct: -0.22 },
+      "^STOXX50E": { price: 520.0, changePct: -0.22 },
       "^N225": { price: 39200.0, changePct: 0.91 },
       "^HSI": { price: 17800.0, changePct: -0.55 },
       "ES=F": { price: 5645.0, changePct: 0.35 },
@@ -924,8 +924,8 @@
     };
   }
 
-  async function loadMarkets() {
-    const symbols = INDICES.map(function (i) {
+  function allSymbols() {
+    return INDICES.map(function (i) {
       return i.id;
     }).concat(
       FUTURES.reduce(function (acc, s) {
@@ -936,15 +936,85 @@
         );
       }, [])
     );
+  }
 
-    const map = {};
-    let ok = 0;
-    const results = await mapPool(symbols, 4, async function (sym) {
+  function countOkQuotes(map) {
+    var n = 0;
+    Object.keys(map || {}).forEach(function (k) {
+      var q = map[k];
+      if (q && !q.error && q.price != null && !Number.isNaN(q.price)) n++;
+    });
+    return n;
+  }
+
+  /** Same-origin JSON shipped with the static site (GitHub Pages). */
+  async function loadSameOriginQuotes() {
+    try {
+      var res = await fetch("data/quotes.json", { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      var data = await res.json();
+      var src = (data && data.quotes) || {};
+      var map = {};
+      allSymbols().forEach(function (sym) {
+        var q = src[sym];
+        if (q && q.price != null && !Number.isNaN(Number(q.price))) {
+          map[sym] = {
+            price: Number(q.price),
+            change: q.change != null ? Number(q.change) : null,
+            changePct: q.changePct != null ? Number(q.changePct) : null,
+            source: "static",
+          };
+        } else {
+          map[sym] = { error: true };
+        }
+      });
+      return { map: map, updated: data && data.updated, ok: countOkQuotes(map) };
+    } catch (e) {
+      return { map: null, updated: null, ok: 0, error: e };
+    }
+  }
+
+  async function loadSameOriginNews() {
+    try {
+      var res = await fetch("data/news.json", { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      var data = await res.json();
+      var items = (data && data.items) || [];
+      var out = [];
+      for (var i = 0; i < items.length; i++) {
+        var it = items[i];
+        var title = (it.headline || it.title || "").trim();
+        if (!title || isDeniedHeadline(title)) continue;
+        var d = it.time ? new Date(it.time) : new Date();
+        if (Number.isNaN(d.getTime())) d = new Date();
+        out.push({
+          id: it.id || "static-" + i + "-" + d.getTime(),
+          time: d,
+          tag: it.tag || classifyHeadline(title),
+          src: it.src || "WIRE",
+          headline: title,
+          link: it.link || "",
+          seed: false,
+        });
+      }
+      out.sort(function (a, b) {
+        return b.time - a.time;
+      });
+      return out;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async function fetchLiveQuotesMap() {
+    var symbols = allSymbols();
+    var map = {};
+    var ok = 0;
+    var results = await mapPool(symbols, 4, async function (sym) {
       return { sym: sym, q: await fetchQuoteForSymbol(sym) };
     });
-
     results.forEach(function (r, i) {
-      const sym = symbols[i];
+      var sym = symbols[i];
       if (r && r.status === "fulfilled") {
         map[sym] = r.value.q;
         ok++;
@@ -952,21 +1022,42 @@
         map[sym] = { error: true };
       }
     });
+    return { map: map, ok: ok };
+  }
 
-    if (ok === 0) {
-      const demo = demoQuotes();
-      Object.keys(demo).forEach(function (k) {
-        map[k] = demo[k];
-      });
-      renderIndices(map, "demo");
-      renderFutures(map, "demo");
-      setMarketStatus("demo");
-      return;
+  async function loadMarkets() {
+    var staticResult = await loadSameOriginQuotes();
+    var live = { map: null, ok: 0 };
+    try {
+      live = await fetchLiveQuotesMap();
+    } catch (_) {
+      live = { map: null, ok: 0 };
     }
 
-    renderIndices(map, "live");
-    renderFutures(map, "live");
-    setMarketStatus(ok < symbols.length ? "live" : "live");
+    var map;
+    var mode;
+    if (live.ok > 0) {
+      map = live.map;
+      // Fill gaps from same-origin so we never flash UNAVAILABLE when static has data
+      if (staticResult.map) {
+        allSymbols().forEach(function (sym) {
+          if ((!map[sym] || map[sym].error) && staticResult.map[sym] && !staticResult.map[sym].error) {
+            map[sym] = staticResult.map[sym];
+          }
+        });
+      }
+      mode = "live";
+    } else if (staticResult.ok > 0) {
+      map = staticResult.map;
+      mode = "live"; // real shipped prices — not DEMO
+    } else {
+      map = demoQuotes();
+      mode = "demo";
+    }
+
+    renderIndices(map, mode);
+    renderFutures(map, mode);
+    setMarketStatus(mode === "demo" ? "demo" : "live");
   }
 
   function seedNewsWithTimes() {
@@ -978,16 +1069,21 @@
   }
 
   async function loadNews() {
+    var staticItems = await loadSameOriginNews();
+    var liveItems = null;
     try {
-      const items = await fetchNews();
-      if (items && items.length) {
-        newsItems = items;
-        newsStatus = "LIVE";
-      } else {
-        newsItems = seedNewsWithTimes();
-        newsStatus = "UNAVAILABLE";
-      }
+      liveItems = await fetchNews();
     } catch (_) {
+      liveItems = null;
+    }
+
+    if (liveItems && liveItems.length) {
+      newsItems = liveItems;
+      newsStatus = "LIVE";
+    } else if (staticItems && staticItems.length) {
+      newsItems = staticItems;
+      newsStatus = "LIVE";
+    } else {
       newsItems = seedNewsWithTimes();
       newsStatus = "UNAVAILABLE";
     }
@@ -1001,15 +1097,15 @@
     }
     refreshInFlight = true;
     refreshQueued = false;
-    const btn = $("#btn-refresh");
+    var btn = $("#btn-refresh");
     if (btn) btn.classList.add("spinning");
     try {
       useLocalProxy = await detectLocalProxy();
-      const hint = $("#footer-hint");
+      var hint = $("#footer-hint");
       if (hint) {
         hint.textContent = useLocalProxy
-          ? "Auto-refresh 1s · Local proxy ON · Yahoo + Stooq + RSS"
-          : "Auto-refresh 1s · CORS proxies · Yahoo + Stooq backup";
+          ? "Auto-refresh 1s · Local proxy ON · same-origin data/ fallback"
+          : "Auto-refresh 1s · same-origin data/ · live optional";
       }
       await Promise.all([loadMarkets(), loadNews()]);
       setLastRefresh(new Date());
@@ -1018,7 +1114,6 @@
       refreshInFlight = false;
       if (refreshQueued) {
         refreshQueued = false;
-        // Defer slightly so we don't immediately re-enter a hammer loop
         setTimeout(refreshAll, 50);
       }
     }

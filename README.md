@@ -2,10 +2,9 @@
 
 Bloomberg Terminal–inspired **static** markets desk. Dark multi-panel layout meant to stay open on a second monitor: indices, futures/rates, news wire, and catalysts.
 
-**Title:** Wire Terminal  
-**Path:** `/workspace/wire-terminal/`
+**Live:** https://samuelamericanu-lab.github.io/wire-terminal/
 
-## Quick preview (recommended)
+## Quick preview
 
 ```bash
 cd /workspace/wire-terminal
@@ -14,67 +13,61 @@ python3 serve.py
 
 Open **http://127.0.0.1:8765/**
 
-`serve.py` serves the static files **and** a tiny allowlisted proxy (`/proxy?url=…`) so the browser can load Yahoo Finance quotes and RSS without CORS pain.
+`serve.py` serves the static files **and** a tiny allowlisted proxy (`/proxy?url=…`) for optional live Yahoo/RSS. GitHub Pages does not need the proxy.
 
 Custom port: `python3 serve.py 9000`
 
-### Alternative (static only)
+### Static / GitHub Pages
+
+The UI loads **same-origin** `data/quotes.json` and `data/news.json` first. That always works on Pages (no CORS). GitHub Actions refreshes those files about every **5 minutes**. The browser polls every **1 second** (in-flight guard); it may also try live Yahoo via CORS proxies, and keeps the same-origin JSON if live fails — never **UNAVAILABLE** when shipped prices exist.
 
 ```bash
+python3 scripts/update_data.py   # refresh data/*.json locally
 python3 -m http.server 8765
 ```
-
-or open `index.html` via `file://`. Without the proxy, market/news fetches often fail in-browser; the UI then shows clearly labeled **DEMO** / **UNAVAILABLE** badges (never silent fake “live” numbers).
 
 ## Panels
 
 | Panel | Content |
 |--------|---------|
-| Top bar | WIRE branding, local + UTC clocks, Asia / Europe / US session badges, last refresh, Refresh |
-| Indices strip | S&P 500, Nasdaq, Dow, Stoxx 600, Nikkei, Hang Seng — price + % (green/red) |
+| Top bar | WIRE branding, local + UTC clocks (12-hour AM/PM), session badges, last refresh |
+| Indices strip | S&P 500, Nasdaq, Dow, Stoxx 50, Nikkei, Hang Seng — price + % |
 | Futures / rates | ES, NQ, WTI, Brent, US 10Y (`^TNX`), ZN |
-| News wire | Chronological flashes (macro / equities / futures), newest first, filters |
+| News wire | Markets/macro flashes (personal-finance fluff filtered out) |
 | Watch next | Catalysts (CPI, FOMC, earnings, oil, session opens) |
 
-Auto-refresh ≈ **1 second** (in-flight guard skips overlaps). Status pills: **LIVE** / **DEMO** / **UNAVAILABLE** / **PARTIAL**.
+Status pills: **LIVE** / **DEMO** / **UNAVAILABLE** / **PARTIAL**.
 
-## Data sources (free / public)
+## Data pipeline
 
-| Data | Source | Auth |
-|------|--------|------|
-| Indices & futures | [Yahoo Finance](https://finance.yahoo.com) chart API `query1.finance.yahoo.com/v8/finance/chart/{symbol}` | None (unofficial) |
-| News | CNBC, MarketWatch, BBC Business, Yahoo Finance headline RSS | None |
-| Optional later | Finnhub free tier | Set env / query key and extend `app.js` — not required |
+| Piece | Role |
+|-------|------|
+| `scripts/update_data.py` | Yahoo chart quotes + CNBC / BBC / Reuters / Yahoo RSS → `data/*.json` |
+| `.github/workflows/update-data.yml` | Cron `*/5 * * * *` + `workflow_dispatch`; commit/push `data/` |
+| `app.js` | Polls same-origin JSON every 1s; optional live fetch |
 
 ### Yahoo symbols
 
-- Indices: `^GSPC`, `^IXIC`, `^DJI`, `^STOXX` (fallback `^STOXX50E`), `^N225`, `^HSI`
+- Indices: `^GSPC`, `^IXIC`, `^DJI`, `^STOXX50E`, `^N225`, `^HSI`
 - Futures: `ES=F`, `NQ=F`, `CL=F`, `BZ=F`, `ZN=F`
 - Rates: `^TNX` (10Y yield %)
-
-### How fetching works
-
-1. App probes `/api/health` — if `serve.py` is running, **local proxy ON**.
-2. Quotes/RSS go through `/proxy?url=…` (allowlisted hosts only).
-3. If you use plain `http.server` or GitHub Pages, the client tries direct fetch, then CORS proxies in order (`corsproxy.io`, `allorigins`, `codetabs`), then Stooq CSV backup per symbol; news via `rss2json` / RSS. On failure → DEMO / UNAVAILABLE.
-4. Clocks are **12-hour with AM/PM**.
 
 ## Files
 
 ```
 wire-terminal/
-├── index.html    # Layout shell
-├── styles.css    # Near-black / amber terminal chrome
-├── app.js        # Clocks, sessions, fetch, render, ~45s refresh
-├── serve.py      # Static + CORS proxy (recommended)
+├── index.html
+├── styles.css
+├── app.js
+├── serve.py
+├── data/quotes.json   # same-origin prices
+├── data/news.json     # same-origin wire
+├── scripts/update_data.py
+├── .github/workflows/update-data.yml
 └── README.md
 ```
 
 No npm / no build step.
-
-## Design
-
-Near-black background, amber/orange accents, IBM Plex Mono + Sans, dense data typography — a markets desk tool, not a marketing site.
 
 ## Disclaimer
 
