@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-13T23:37:25Z",
+  "updated": "2026-09-13T23:48:02Z",
   "quotes": {
     "^GSPC": {
       "price": 7656.98,
@@ -32,24 +32,24 @@
       "changePct": -0.597
     },
     "ES=F": {
-      "price": 7623.75,
-      "change": -35.769958,
-      "changePct": -0.467
+      "price": 7619.25,
+      "change": -40.212176,
+      "changePct": -0.525
     },
     "NQ=F": {
-      "price": 29088.75,
-      "change": -298.278338,
-      "changePct": -1.015
+      "price": 29047.0,
+      "change": -340.007679,
+      "changePct": -1.157
     },
     "CL=F": {
-      "price": 102.47,
-      "change": 2.420205,
-      "changePct": 2.419
+      "price": 102.51,
+      "change": 2.460224,
+      "changePct": 2.459
     },
     "BZ=F": {
-      "price": 107.7,
-      "change": 3.090174,
-      "changePct": 2.954
+      "price": 107.71,
+      "change": 3.099606,
+      "changePct": 2.963
     },
     "^TNX": {
       "price": 4.975,
@@ -57,9 +57,9 @@
       "changePct": 0.627
     },
     "ZN=F": {
-      "price": 106.171875,
-      "change": 0.062499,
-      "changePct": 0.0589
+      "price": 106.203125,
+      "change": 0.09375,
+      "changePct": 0.0884
     }
   }
 }
