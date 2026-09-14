@@ -6,13 +6,26 @@
 (function () {
   "use strict";
 
-  /* —— Path base: NEVER use root-absolute /data/... on Pages —— */
-  var BASE =
-    (document.querySelector("base") && document.querySelector("base").href) ||
-    new URL(".", location.href).href;
+  /* —— Path base: NEVER use root-absolute /data/... on Pages ——
+   * GitHub Pages often serves /wire-terminal without a trailing slash.
+   * new URL(".", thatHref) then resolves to the SITE ROOT and 404s data/.
+   */
+  function pageBaseHref() {
+    var baseEl = document.querySelector("base");
+    if (baseEl && baseEl.href) return baseEl.href;
+    var path = location.pathname || "/";
+    if (/\.html?$/i.test(path)) {
+      path = path.replace(/\/[^/]+$/, "/");
+    } else if (!path.endsWith("/")) {
+      path = path + "/";
+    }
+    return location.origin + path;
+  }
+
+  var BASE = pageBaseHref();
 
   function dataUrl(file) {
-    // Resolves to .../wire-terminal/data/<file> on Pages, or .../data/<file> locally
+    // Resolves to .../wire-terminal/data/<file> on Pages (with or without trailing slash)
     return new URL("data/" + file, BASE).href;
   }
 
