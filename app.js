@@ -25,8 +25,42 @@
   var BASE = pageBaseHref();
 
   function dataUrl(file) {
-    // Resolves to .../wire-terminal/data/<file> on Pages (with or without trailing slash)
     return new URL("data/" + file, BASE).href;
+  }
+
+  /** Candidate URLs — Pages trailing-slash + hardcoded project path fallback */
+  function dataCandidates(file) {
+    var out = [];
+    var seen = {};
+    function add(u) {
+      if (!u || seen[u]) return;
+      seen[u] = 1;
+      out.push(u);
+    }
+    add(dataUrl(file));
+    add(location.origin + "/wire-terminal/data/" + file);
+    try {
+      add(new URL("../data/" + file, location.href).href);
+    } catch (e) {}
+    return out;
+  }
+
+  async function fetchJsonAny(file) {
+    var urls = dataCandidates(file);
+    var lastErr;
+    for (var i = 0; i < urls.length; i++) {
+      try {
+        var res = await fetch(urls[i], { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status + " " + urls[i]);
+        return await res.json();
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    if (window.__WIRE_BOOTSTRAP__ && window.__WIRE_BOOTSTRAP__[file]) {
+      return window.__WIRE_BOOTSTRAP__[file];
+    }
+    throw lastErr || new Error("fetch failed " + file);
   }
 
   var REFRESH_MS = 1000;
@@ -539,10 +573,7 @@
 
   async function loadQuotes() {
     try {
-      var url = dataUrl("quotes.json");
-      var res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      var data = await res.json();
+      var data = await fetchJsonAny("quotes.json");
       var src = (data && data.quotes) || {};
       var map = {};
       allSymbols().forEach(function (sym) {
@@ -566,9 +597,7 @@
 
   async function loadNews() {
     try {
-      var res = await fetch(dataUrl("news.json"), { cache: "no-store" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      var data = await res.json();
+      var data = await fetchJsonAny("news.json");
       var items = (data && data.items) || [];
       var out = [];
       for (var i = 0; i < items.length; i++) {
@@ -610,9 +639,7 @@
 
   async function loadSpikes() {
     try {
-      var res = await fetch(dataUrl("spikes.json"), { cache: "no-store" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      var data = await res.json();
+      var data = await fetchJsonAny("spikes.json");
       var items = (data && data.items) || [];
       return {
         items: items
