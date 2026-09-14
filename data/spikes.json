@@ -1,0 +1,129 @@
+{
+  "updated": "2026-09-14T01:03:29Z",
+  "status": "PARTIAL",
+  "threshold1m": 3.0,
+  "note": "No ≥3% 1m clears right now; day unusual movers shown",
+  "items": [
+    {
+      "symbol": "HPE",
+      "name": "Hewlett Packard Enterprise Comp",
+      "price": 62.09,
+      "changePct": 12.441,
+      "window": "1d",
+      "channel": "spike"
+    },
+    {
+      "symbol": "HPQ",
+      "name": "HP Inc.",
+      "price": 35.48,
+      "changePct": 8.402,
+      "window": "1d",
+      "channel": "spike"
+    },
+    {
+      "symbol": "OKLO",
+      "name": "Oklo Inc.",
+      "price": 36.22,
+      "changePct": -9.178,
+      "window": "1d",
+      "channel": "spike"
+    },
+    {
+      "symbol": "DELL",
+      "name": "Dell Technologies Inc.",
+      "price": 567.29,
+      "changePct": 11.975,
+      "window": "1d",
+      "channel": "spike"
+    },
+    {
+      "symbol": "ON",
+      "name": "ON Semiconductor Corporation",
+      "price": 76.14,
+      "changePct": 8.508,
+      "window": "1d",
+      "channel": "spike"
+    },
+    {
+      "symbol": "M",
+      "name": "Macy's Inc",
+      "price": 22.08,
+      "changePct": 7.707,
+      "window": "1d",
+      "channel": "spike"
+    },
+    {
+      "symbol": "HUT",
+      "name": "Hut 8 Corp.",
+      "price": 98.6,
+      "changePct": 8.83,
+      "window": "1d",
+      "channel": "spike"
+    },
+    {
+      "symbol": "NTAP",
+      "name": "NetApp, Inc.",
+      "price": 199.28,
+      "changePct": 8.54,
+      "window": "1d",
+      "channel": "spike"
+    },
+    {
+      "symbol": "CDW",
+      "name": "CDW Corporation",
+      "price": 153.79,
+      "changePct": 7.847,
+      "window": "1d",
+      "channel": "spike"
+    },
+    {
+      "symbol": "LEU",
+      "name": "Centrus Energy Corp.",
+      "price": 152.31,
+      "changePct": -8.175,
+      "window": "1d",
+      "channel": "spike"
+    },
+    {
+      "symbol": "CIFR",
+      "name": "Cipher Digital Inc.",
+      "price": 16.85,
+      "changePct": 5.709,
+      "window": "1d",
+      "channel": "spike"
+    },
+    {
+      "symbol": "HDB",
+      "name": "HDFC Bank Limited",
+      "price": 23.34,
+      "changePct": 6.868,
+      "window": "1d",
+      "channel": "spike"
+    },
+    {
+      "symbol": "ALM",
+      "name": "Almonty Industries Inc.",
+      "price": 15.49,
+      "changePct": -6.518,
+      "window": "1d",
+      "channel": "spike"
+    },
+    {
+      "symbol": "FPS",
+      "name": "Forgent Power Solutions, Inc.",
+      "price": 31.82,
+      "changePct": 8.973,
+      "window": "1d",
+      "channel": "spike"
+    },
+    {
+      "symbol": "SEDG",
+      "name": "SolarEdge Technologies, Inc.",
+      "price": 34.68,
+      "changePct": -5.633,
+      "window": "1d",
+      "channel": "spike"
+    }
+  ],
+  "channel": "spike"
+}

@@ -2,103 +2,109 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wire Terminal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0c0f" />
+  <title>WIRE · Options Desk</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div id="app">
-    <!-- TOP BAR -->
     <header class="top-bar">
       <div class="brand">
-        <span class="brand-mark">■</span>
-        <span class="brand-name">WIRE</span>
-        <span class="brand-sub">TERMINAL</span>
+        <span class="brand-dot" aria-hidden="true"></span>
+        <div class="brand-text">
+          <span class="brand-name">WIRE</span>
+          <span class="brand-sub">options desk</span>
+        </div>
       </div>
 
       <div class="clocks">
         <div class="clock" id="clock-local">
-          <span class="clock-label">LOCAL</span>
-          <span class="clock-time">--:--:--</span>
+          <span class="clock-label">Local</span>
+          <span class="clock-time">--:--:-- --</span>
         </div>
         <div class="clock" id="clock-utc">
           <span class="clock-label">UTC</span>
-          <span class="clock-time">--:--:--</span>
+          <span class="clock-time">--:--:-- --</span>
         </div>
       </div>
 
       <div class="sessions" id="sessions">
-        <span class="session" data-session="asia">ASIA</span>
-        <span class="session" data-session="europe">EUROPE</span>
+        <span class="session" data-session="asia">Asia</span>
+        <span class="session" data-session="europe">Europe</span>
         <span class="session" data-session="us">US</span>
       </div>
 
       <div class="top-meta">
-        <span class="last-refresh" id="last-refresh">LAST —</span>
-        <button type="button" class="btn-refresh" id="btn-refresh" title="Refresh data">
-          <span class="btn-icon">↻</span> REFRESH
+        <span class="last-refresh" id="last-refresh">Last —</span>
+        <span class="status-pill" id="data-status">—</span>
+        <button type="button" class="btn-refresh" id="btn-refresh" title="Refresh">
+          Refresh
         </button>
-        <span class="status-pill" id="data-status" title="Market data status">—</span>
       </div>
     </header>
 
-    <!-- INDICES STRIP -->
-    <section class="indices-strip" id="indices-strip" aria-label="Major indices">
-      <!-- Filled by JS -->
+    <section class="indices-strip" id="indices-strip" aria-label="Major indices"></section>
+    <section class="futures-strip" aria-label="Futures and rates">
+      <div class="strip-label">Futures</div>
+      <div class="futures-track" id="futures-body">
+        <div class="loading-row">Loading…</div>
+      </div>
+      <span class="panel-badge" id="futures-badge">—</span>
     </section>
 
-    <!-- MAIN GRID -->
     <main class="main-grid">
-      <!-- LEFT: Futures -->
-      <aside class="panel futures-panel">
-        <div class="panel-header">
-          <h2>FUTURES / RATES</h2>
-          <span class="panel-badge" id="futures-badge">—</span>
+      <section class="card spike-card">
+        <div class="card-head">
+          <div>
+            <h2><span class="chan spike">#spike</span> Movers</h2>
+            <p class="card-hint" id="spike-hint">3%+ in 1m · liquid names</p>
+          </div>
+          <span class="panel-badge" id="spike-badge">—</span>
         </div>
-        <div class="panel-body" id="futures-body">
+        <div class="card-body" id="spike-body">
           <div class="loading-row">Loading…</div>
-        </div>
-      </aside>
-
-      <!-- CENTER: News Wire -->
-      <section class="panel news-panel">
-        <div class="panel-header">
-          <h2>NEWS WIRE</h2>
-          <span class="panel-badge" id="news-badge">SEED</span>
-        </div>
-        <div class="news-filters">
-          <button type="button" class="filter active" data-filter="all">ALL</button>
-          <button type="button" class="filter" data-filter="macro">MACRO</button>
-          <button type="button" class="filter" data-filter="equities">EQUITIES</button>
-          <button type="button" class="filter" data-filter="futures">FUTURES</button>
-        </div>
-        <div class="panel-body news-body" id="news-body">
-          <!-- Seed / live flashes -->
         </div>
       </section>
 
-      <!-- RIGHT: Watch Next -->
-      <aside class="panel watch-panel">
-        <div class="panel-header">
-          <h2>WATCH NEXT</h2>
-          <span class="panel-badge amber">CATALYSTS</span>
+      <section class="card news-card">
+        <div class="card-head">
+          <div>
+            <h2><span class="chan newswire">#newswire</span> Breaks</h2>
+            <p class="card-hint">Earnings · CEO · M&amp;A · FDA · geo · <span class="chan fed inline">#fed</span></p>
+          </div>
+          <span class="panel-badge" id="news-badge">—</span>
         </div>
-        <div class="panel-body" id="watch-body">
-          <!-- Static catalysts + calendar-ish items -->
+        <div class="news-filters">
+          <button type="button" class="filter active" data-filter="all">All</button>
+          <button type="button" class="filter" data-filter="macro">Macro</button>
+          <button type="button" class="filter" data-filter="equities">EQ</button>
+          <button type="button" class="filter" data-filter="geo">Geo</button>
+          <button type="button" class="filter" data-filter="critical">Crit</button>
         </div>
+        <div class="card-body news-body" id="news-body"></div>
+      </section>
+
+      <aside class="card watch-card">
+        <div class="card-head">
+          <div>
+            <h2>Watch</h2>
+            <p class="card-hint">Catalysts on deck</p>
+          </div>
+        </div>
+        <div class="card-body" id="watch-body"></div>
       </aside>
     </main>
 
     <footer class="status-bar">
-      <span>WIRE TERMINAL · MARKETS DESK</span>
-      <span id="footer-hint">Auto-refresh 1s · same-origin data/ · See README</span>
+      <span>Calls / puts off news + tape</span>
+      <span id="footer-hint">Polling relative data/*.json</span>
       <span id="footer-clock">—</span>
     </footer>
   </div>
-
   <script src="app.js"></script>
 </body>
 </html>
