@@ -224,6 +224,26 @@ def local_tag(title: str) -> str:
     return "macro"
 
 
+# Clearly market-moving breaks → critical / breaking visual treatment
+CRITICAL_RE = re.compile(
+    r"earnings (beat|miss|surprise)|beats? (estimates?|expectations?)|"
+    r"misses? (estimates?|expectations?)|"
+    r"ceo (resign|steps down|ousted|fired)|chief executive (resign|steps down)|"
+    r"\b(m&a|merger|acquisition|acquire[sd]?|buyout|takeover)\b|"
+    r"\bfda\b (approv|reject|crl|warning)|"
+    r"fed (decision|rate (cut|hike|hold)|cuts rates|hikes rates)|"
+    r"fomc (decision|statement)|"
+    r"oil (supply )?(emergency|disruption|shock|halt)|"
+    r"pipeline (halt|explosion|attack)|"
+    r"opec (emergency|cuts production)",
+    re.I,
+)
+
+
+def is_critical(title: str) -> bool:
+    return bool(CRITICAL_RE.search(title or ""))
+
+
 def keep_headline(title: str) -> bool:
     if not title or not title.strip():
         return False
@@ -276,14 +296,17 @@ def parse_rss(xml_text: str, source_label: str) -> list[dict]:
                     )
                 except ValueError:
                     pass
+            tag = local_tag(title)
+            crit = is_critical(title)
             items_out.append(
                 {
                     "id": f"atom-{source_label}-{abs(hash(title + link)) % 10**10}",
-                    "tag": local_tag(title),
+                    "tag": tag,
                     "src": source_label,
                     "headline": title,
                     "link": link,
                     "time": time_s,
+                    "critical": crit,
                 }
             )
         return items_out
@@ -315,14 +338,17 @@ def parse_rss(xml_text: str, source_label: str) -> list[dict]:
                 )
             except (TypeError, ValueError, IndexError):
                 pass
+        tag = local_tag(title)
+        crit = is_critical(title)
         items_out.append(
             {
                 "id": f"rss-{source_label}-{i}-{abs(hash(title)) % 10**10}",
-                "tag": local_tag(title),
+                "tag": tag,
                 "src": source_label,
                 "headline": title,
                 "link": link,
                 "time": time_s,
+                "critical": crit,
             }
         )
     return items_out

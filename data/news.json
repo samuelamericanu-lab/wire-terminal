@@ -1,317 +1,356 @@
 {
-  "updated": "2026-09-14T00:43:51Z",
+  "updated": "2026-09-14T00:48:47Z",
   "items": [
     {
-      "id": "rss-YAHOO-0-5810078701",
+      "id": "rss-YAHOO-0-3900693391",
       "tag": "macro",
       "src": "YAHOO",
       "headline": "Dow Jones Futures Fall, Techs Tumble As Anthropic Leads Call For AI Slowdown; Fed Meeting Ahead",
       "link": "https://finance.yahoo.com/m/75964091-0d57-3879-b55e-2c11b3225642/dow-jones-futures-fall%2C-techs.html?.tsrc=rss",
-      "time": "2026-09-14T00:32:01Z"
+      "time": "2026-09-14T00:32:01Z",
+      "critical": false
     },
     {
-      "id": "rss-YAHOO-11-995542657",
+      "id": "rss-YAHOO-11-1451423178",
       "tag": "equities",
       "src": "YAHOO",
       "headline": "Netflix Stock Will Be Worth More by 2028: My Case for Buying NFLX Now",
       "link": "https://www.fool.com/investing/2026/09/13/netflix-stock-will-be-worth-more-by-2028-my-case-f/?.tsrc=rss",
-      "time": "2026-09-13T23:50:00Z"
+      "time": "2026-09-13T23:50:00Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-1-4686825313",
+      "id": "rss-CNBC-1-5128387838",
       "tag": "macro",
       "src": "CNBC",
       "headline": "Stock futures fall as investors weigh AI safety concerns, oil gains: Live updates",
       "link": "https://www.cnbc.com/2026/09/13/stock-futures-today-live-updates.html",
-      "time": "2026-09-13T23:33:43Z"
+      "time": "2026-09-13T23:33:43Z",
+      "critical": false
     },
     {
-      "id": "rss-YAHOO-1-6623001970",
+      "id": "rss-YAHOO-1-2277625273",
       "tag": "equities",
       "src": "YAHOO",
       "headline": "Berkshire Hathaway Stock Is Trailing the S&P 500 by About 10 Points This Year. History Says That Usually Doesn't Last.",
       "link": "https://www.fool.com/investing/2026/09/13/berkshire-hathaway-stock-is-trailing-the-s-and-p-500-by-about-10-points-this-year-history-says-that-usually-doesn-t-last/?.tsrc=rss",
-      "time": "2026-09-13T22:34:01Z"
+      "time": "2026-09-13T22:34:01Z",
+      "critical": false
     },
     {
-      "id": "rss-YAHOO-14-3318399697",
+      "id": "rss-YAHOO-14-5464789961",
       "tag": "macro",
       "src": "YAHOO",
       "headline": "Stock Futures Slide, Oil Rises Ahead of Fed Rate Decision",
       "link": "https://finance.yahoo.com/m/f1d89395-9654-369a-b91d-cf36e903647d/stock-futures-slide%2C-oil.html?.tsrc=rss",
-      "time": "2026-09-13T22:12:00Z"
+      "time": "2026-09-13T22:12:00Z",
+      "critical": false
     },
     {
-      "id": "rss-YAHOO-3-6232539087",
+      "id": "rss-YAHOO-3-197685483",
       "tag": "equities",
       "src": "YAHOO",
       "headline": "Meet the Magnificent Momentum-Driven ETF Obliterating the S&P 500 in 2026",
       "link": "https://www.fool.com/investing/2026/09/13/meet-momentum-driven-etf-obliterating-sp-500-2026/?.tsrc=rss",
-      "time": "2026-09-13T19:05:00Z"
+      "time": "2026-09-13T19:05:00Z",
+      "critical": false
     },
     {
-      "id": "rss-BBC-3-4823104135",
+      "id": "rss-BBC-3-8684831484",
       "tag": "macro",
       "src": "BBC",
       "headline": "Trump downplays warnings of AI risks, citing rivalry with China",
       "link": "https://www.bbc.co.uk/news/articles/c7v48vp31mdo?at_medium=RSS&at_campaign=rss",
-      "time": "2026-09-13T18:49:37Z"
+      "time": "2026-09-13T18:49:37Z",
+      "critical": false
     },
     {
-      "id": "rss-YAHOO-4-1285129896",
+      "id": "rss-YAHOO-4-9195836750",
       "tag": "equities",
       "src": "YAHOO",
       "headline": "From Fashion to Concrete: J.P. Morgan Says Buy These 2 Stocks",
       "link": "https://finance.yahoo.com/markets/stocks/articles/fashion-concrete-j-p-morgan-180000956.html?.tsrc=rss",
-      "time": "2026-09-13T18:00:00Z"
+      "time": "2026-09-13T18:00:00Z",
+      "critical": false
     },
     {
-      "id": "rss-YAHOO-17-8126999955",
+      "id": "rss-YAHOO-17-4486824416",
       "tag": "macro",
       "src": "YAHOO",
       "headline": "Fed Interest Rates, Home Sales, Retail, Lennar Stock, and More to Watch This Week",
       "link": "https://finance.yahoo.com/m/1cecb0c9-f9d8-3e18-8696-77bfd71baf9a/fed-interest-rates%2C-home.html?.tsrc=rss",
-      "time": "2026-09-13T18:00:00Z"
+      "time": "2026-09-13T18:00:00Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-15-8932927715",
+      "id": "rss-CNBC-15-1868870150",
       "tag": "equities",
       "src": "CNBC",
       "headline": "Here are the 2 big things we're watching in this week's stock market",
       "link": "https://www.cnbc.com/2026/09/13/here-are-the-2-big-things-were-watching-in-this-weeks-stock-market.html",
-      "time": "2026-09-13T16:57:43Z"
+      "time": "2026-09-13T16:57:43Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-2-8523895093",
+      "id": "rss-CNBC-2-8435437600",
       "tag": "equities",
       "src": "CNBC",
       "headline": "Anthropic's Amodei says China presents 'toughest dilemma' for his proposed AI slowdown",
       "link": "https://www.cnbc.com/2026/09/13/china-dilemma-ai-slowdown-anthropic.html",
-      "time": "2026-09-13T16:39:24Z"
+      "time": "2026-09-13T16:39:24Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-8-3934909466",
+      "id": "rss-CNBC-8-3735316357",
       "tag": "equities",
       "src": "CNBC",
       "headline": "Xi says China will take lead to foster AI, tech cooperation among BRICS countries",
       "link": "https://www.cnbc.com/2026/09/13/china-xi-ai-tech-brics.html",
-      "time": "2026-09-13T16:38:45Z"
+      "time": "2026-09-13T16:38:45Z",
+      "critical": false
     },
     {
-      "id": "rss-YAHOO-12-2285697744",
+      "id": "rss-YAHOO-12-8502919589",
       "tag": "equities",
       "src": "YAHOO",
       "headline": "HSBC Raises 2026 S&P 500 Target to 8,100 on Earnings Outlook",
       "link": "https://investorshub.advfn.com/market-news/article/36145/hsbc-raises-2026-sp-500-target-to-8100-on-earnings-outlook?.tsrc=rss",
-      "time": "2026-09-13T15:43:00Z"
+      "time": "2026-09-13T15:43:00Z",
+      "critical": false
     },
     {
-      "id": "rss-BBC-4-3817723660",
+      "id": "rss-BBC-4-8692558647",
       "tag": "futures",
       "src": "BBC",
       "headline": "AI staff 'genuinely frightened' for humanity's future, ex-Anthropic researcher tells BBC",
       "link": "https://www.bbc.co.uk/news/articles/c1kx0gyje9wo?at_medium=RSS&at_campaign=rss",
-      "time": "2026-09-13T14:53:40Z"
+      "time": "2026-09-13T14:53:40Z",
+      "critical": false
     },
     {
-      "id": "rss-YAHOO-5-291155711",
+      "id": "rss-YAHOO-5-9173049146",
       "tag": "macro",
       "src": "YAHOO",
       "headline": "A Bear Market Is Coming at Some Point. History Says That's Actually Good News for Investors.",
       "link": "https://www.fool.com/investing/2026/09/13/bear-market-coming-history-says-good-news/?.tsrc=rss",
-      "time": "2026-09-13T14:43:00Z"
+      "time": "2026-09-13T14:43:00Z",
+      "critical": false
     },
     {
-      "id": "rss-YAHOO-6-5135676889",
+      "id": "rss-YAHOO-6-8672364669",
       "tag": "equities",
       "src": "YAHOO",
       "headline": "History Says September Is a Terrible Month for the S&P 500 Index and for Other Stocks. Here's Why I'm Still Investing Anyway.",
       "link": "https://www.fool.com/investing/2026/09/13/history-says-september-is-a-terrible-month-for/?.tsrc=rss",
-      "time": "2026-09-13T13:55:00Z"
+      "time": "2026-09-13T13:55:00Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-18-798334781",
+      "id": "rss-CNBC-18-946846801",
       "tag": "macro",
       "src": "CNBC",
       "headline": "Up 3,600%, this freight fund has posted the biggest gains of all on Iran war oil shock",
       "link": "https://www.cnbc.com/2026/09/13/iran-war-oil-prices-freight-tankers-shipping.html",
-      "time": "2026-09-13T13:50:00Z"
+      "time": "2026-09-13T13:50:00Z",
+      "critical": true
     },
     {
-      "id": "rss-YAHOO-19-6647784990",
+      "id": "rss-YAHOO-19-3585497722",
       "tag": "equities",
       "src": "YAHOO",
       "headline": "Costco Stock Price Forecast: Here's What a $10,000 Investment Today Could Be Worth by September 2027",
       "link": "https://www.fool.com/investing/2026/09/13/costco-stock-price-forecast-heres-what-a-10000-inv/?.tsrc=rss",
-      "time": "2026-09-13T13:45:00Z"
+      "time": "2026-09-13T13:45:00Z",
+      "critical": false
     },
     {
-      "id": "rss-YAHOO-7-3065080925",
+      "id": "rss-YAHOO-7-7613551806",
       "tag": "macro",
       "src": "YAHOO",
       "headline": "Dow Jones Futures: Fed Rate Hike Seen As Oil, Yields Pressure Stocks; Apple, Moderna Are New Buys",
       "link": "https://finance.yahoo.com/m/ff3ebbcf-fe39-3ccd-b655-37522db9df46/dow-jones-futures%3A-fed-rate.html?.tsrc=rss",
-      "time": "2026-09-13T11:57:14Z"
+      "time": "2026-09-13T11:57:14Z",
+      "critical": true
     },
     {
-      "id": "rss-CNBC-5-9128560840",
+      "id": "rss-CNBC-5-2061654622",
       "tag": "equities",
       "src": "CNBC",
       "headline": "Goldman picks China healthcare stocks for a post-AI trade",
       "link": "https://www.cnbc.com/2026/09/13/goldman-picks-china-healthcare-stocks-for-a-post-ai-trade.html",
-      "time": "2026-09-13T11:54:40Z"
+      "time": "2026-09-13T11:54:40Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-14-8099757919",
+      "id": "rss-CNBC-14-2221488212",
       "tag": "equities",
       "src": "CNBC",
       "headline": "Top Wall Street analysts recommend these 3 dividend stocks for higher returns",
       "link": "https://www.cnbc.com/2026/09/13/top-wall-street-analysts-recommend-these-3-dividend-stocks-for-higher-returns.html",
-      "time": "2026-09-13T11:53:35Z"
+      "time": "2026-09-13T11:53:35Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-4-2632506587",
+      "id": "rss-CNBC-4-6848433182",
       "tag": "macro",
       "src": "CNBC",
       "headline": "NFL and midterm elections set up prediction markets for a critical fall season",
       "link": "https://www.cnbc.com/2026/09/13/nfl-and-midterms-mark-key-fall-season-for-prediction-markets.html",
-      "time": "2026-09-13T11:52:33Z"
+      "time": "2026-09-13T11:52:33Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-17-4619540645",
+      "id": "rss-CNBC-17-4874068734",
       "tag": "macro",
       "src": "CNBC",
       "headline": "Iran and UAE back joint BRICS statement urging restraint in war",
       "link": "https://www.cnbc.com/2026/09/13/iran-and-uae-back-joint-brics-statement-urging-restraint-in-war.html",
-      "time": "2026-09-13T10:38:08Z"
+      "time": "2026-09-13T10:38:08Z",
+      "critical": false
     },
     {
-      "id": "rss-YAHOO-13-7142921755",
+      "id": "rss-YAHOO-13-4323899401",
       "tag": "macro",
       "src": "YAHOO",
       "headline": "A highly anticipated Fed meeting, war worries, and an unblinking stock market: What to watch this week",
       "link": "https://finance.yahoo.com/markets/article/a-highly-anticipated-fed-meeting-war-worries-and-an-unblinking-stock-market-what-to-watch-this-week-100000843.html?.tsrc=rss",
-      "time": "2026-09-13T10:00:00Z"
+      "time": "2026-09-13T10:00:00Z",
+      "critical": false
     },
     {
-      "id": "rss-YAHOO-9-5796910882",
+      "id": "rss-YAHOO-9-6576700259",
       "tag": "equities",
       "src": "YAHOO",
       "headline": "Here's How Many Shares of Home Depot You'd Need for $10,000 in Yearly Dividends",
       "link": "https://www.fool.com/investing/2026/09/13/how-many-shares-home-depot-10000-yearly-dividends/?.tsrc=rss",
-      "time": "2026-09-13T09:50:00Z"
+      "time": "2026-09-13T09:50:00Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-12-3396198583",
+      "id": "rss-CNBC-12-9551894650",
       "tag": "macro",
       "src": "CNBC",
       "headline": "China's Xi urges BRICS nations to work towards peace in the Middle East",
       "link": "https://www.cnbc.com/2026/09/13/chinas-xi-urges-brics-peace-middle-east.html",
-      "time": "2026-09-13T09:41:53Z"
+      "time": "2026-09-13T09:41:53Z",
+      "critical": false
     },
     {
-      "id": "rss-YAHOO-10-5900528388",
+      "id": "rss-YAHOO-10-2456963507",
       "tag": "equities",
       "src": "YAHOO",
       "headline": "3 Stocks to Buy and Hold Even If There's a Stock Market Sell-Off in September",
       "link": "https://www.fool.com/investing/2026/09/13/3-stocks-to-buy-and-hold-even-if-theres-a-stock-ma/?.tsrc=rss",
-      "time": "2026-09-13T09:25:00Z"
+      "time": "2026-09-13T09:25:00Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-6-2741224940",
+      "id": "rss-CNBC-6-7369836699",
       "tag": "equities",
       "src": "CNBC",
       "headline": "Larry Ellison nixes plan to offload up to $7.5 billion worth of Oracle stock",
       "link": "https://www.cnbc.com/2026/09/12/larry-ellison-nixes-plan-to-offload-up-to-7point5-billion-worth-of-oracle-stock-.html",
-      "time": "2026-09-12T17:14:56Z"
+      "time": "2026-09-12T17:14:56Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-22-1425890225",
+      "id": "rss-CNBC-22-5786073051",
       "tag": "macro",
       "src": "CNBC",
       "headline": "Indian Prime Minister Modi says border peace is key to India-China ties",
       "link": "https://www.cnbc.com/2026/09/12/india-china-modi-xi-brics-border.html",
-      "time": "2026-09-12T15:12:56Z"
+      "time": "2026-09-12T15:12:56Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-25-2063675062",
+      "id": "rss-CNBC-25-383280964",
       "tag": "macro",
       "src": "CNBC",
       "headline": "Stocks stumble on inflation fears, but 2 of our names give us reasons to stay bullish",
       "link": "https://www.cnbc.com/2026/09/12/stocks-stumble-on-inflation-fears-but-2-names-give-us-reasons-to-stay-bullish.html",
-      "time": "2026-09-12T14:37:07Z"
+      "time": "2026-09-12T14:37:07Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-23-9926585191",
+      "id": "rss-CNBC-23-4798286828",
       "tag": "macro",
       "src": "CNBC",
       "headline": "Inflation is outpacing wage growth again, squeezing Americans’ paychecks",
       "link": "https://www.cnbc.com/2026/09/12/inflation-is-outpacing-wage-growth-again-squeezing-americans-paychecks.html",
-      "time": "2026-09-12T12:49:15Z"
+      "time": "2026-09-12T12:49:15Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-19-4672699771",
+      "id": "rss-CNBC-19-4922955267",
       "tag": "macro",
       "src": "CNBC",
       "headline": "Oil's roundtrip back to $100. Why China could determine what happens next",
       "link": "https://www.cnbc.com/2026/09/12/oils-roundtrip-back-to-100-why-china-could-determine-what-happens-next.html",
-      "time": "2026-09-12T12:40:05Z"
+      "time": "2026-09-12T12:40:05Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-28-8390042575",
+      "id": "rss-CNBC-28-8421774251",
       "tag": "macro",
       "src": "CNBC",
       "headline": "GM plans U.S. battery development as Trump's DOT attacks Ford for China ties",
       "link": "https://www.cnbc.com/2026/09/12/gm-us-battery-development-ford-china-ties.html",
-      "time": "2026-09-12T12:00:01Z"
+      "time": "2026-09-12T12:00:01Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-20-1264245258",
+      "id": "rss-CNBC-20-4694820647",
       "tag": "macro",
       "src": "CNBC",
       "headline": "Cramer: This market has eerie parallels with 2018. Here's what investors should do",
       "link": "https://www.cnbc.com/2026/09/11/cramer-market-eerie-parallels-2018-what-it-means-for-investors.html",
-      "time": "2026-09-11T23:09:35Z"
+      "time": "2026-09-11T23:09:35Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-29-9845043221",
+      "id": "rss-CNBC-29-1441543328",
       "tag": "macro",
       "src": "CNBC",
       "headline": "Dan Chung rebuilt a decimated Alger Management after 9/11. He's still finding the market's winners",
       "link": "https://www.cnbc.com/2026/09/11/dan-chung-rebuilt-a-decimated-alger-management-after-9/11-hes-still-finding-the-markets-winners.html",
-      "time": "2026-09-11T20:21:01Z"
+      "time": "2026-09-11T20:21:01Z",
+      "critical": false
     },
     {
-      "id": "rss-CNBC-13-9352499532",
+      "id": "rss-CNBC-13-1527437033",
       "tag": "macro",
       "src": "CNBC",
       "headline": "A Fed hike next week seems certain after the latest inflation data. Here's what's ahead",
       "link": "https://www.cnbc.com/2026/09/11/stock-market-next-week-outlook-for-sept-14-18-2026.html",
-      "time": "2026-09-11T20:09:05Z"
+      "time": "2026-09-11T20:09:05Z",
+      "critical": false
     },
     {
-      "id": "rss-BBC-27-3646407646",
+      "id": "rss-BBC-27-3132694341",
       "tag": "macro",
       "src": "BBC",
       "headline": "Can Europe recharge its battery industry?",
       "link": "https://www.bbc.co.uk/news/articles/cjeg8ly0qd3o?at_medium=RSS&at_campaign=rss",
-      "time": "2026-09-10T23:05:47Z"
+      "time": "2026-09-10T23:05:47Z",
+      "critical": false
     },
     {
-      "id": "rss-BBC-17-4703539968",
+      "id": "rss-BBC-17-7361783661",
       "tag": "macro",
       "src": "BBC",
       "headline": "Oil, gas and borrowing costs surge as fears over Middle East escalate",
       "link": "https://www.bbc.co.uk/news/articles/c5y48rz2nddo?at_medium=RSS&at_campaign=rss",
-      "time": "2026-09-10T17:38:31Z"
+      "time": "2026-09-10T17:38:31Z",
+      "critical": false
     },
     {
-      "id": "rss-BBC-24-7052782901",
+      "id": "rss-BBC-24-4337502525",
       "tag": "macro",
       "src": "BBC",
       "headline": "Petrol prices rise by 5p over a week as Iran war sends oil higher",
       "link": "https://www.bbc.co.uk/news/articles/cj4jwlx77lro?at_medium=RSS&at_campaign=rss",
-      "time": "2026-09-09T12:20:40Z"
+      "time": "2026-09-09T12:20:40Z",
+      "critical": false
     }
   ]
 }

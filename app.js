@@ -688,6 +688,22 @@
     return "macro";
   }
 
+  /** Market-moving breaks: earnings surprise, CEO resign, M&A, FDA, Fed decision, oil emergency. */
+  function isCriticalHeadline(title) {
+    const t = (title || "").toLowerCase();
+    return /earnings (beat|miss|surprise)|beats? (estimates?|expectations?)|misses? (estimates?|expectations?)|ceo (resign|steps down|ousted|fired)|chief executive (resign|steps down)|\b(m&a|merger|acquisition|acquire[sd]?|buyout|takeover)\b|\bfda\b (approv|reject|crl|warning)|fed (decision|rate (cut|hike|hold)|cuts rates|hikes rates)|fomc (decision|statement)|oil (supply )?(emergency|disruption|shock|halt)|pipeline (halt|explosion|attack)|opec (emergency|cuts production)/.test(
+      t
+    );
+  }
+
+  function isCriticalItem(n) {
+    if (!n) return false;
+    if (n.critical === true) return true;
+    var tag = (n.tag || "").toLowerCase();
+    if (tag === "breaking" || tag === "critical") return true;
+    return isCriticalHeadline(n.headline || n.title || "");
+  }
+
   function parseRssItems(xmlText, sourceLabel) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(xmlText, "text/xml");
@@ -707,13 +723,16 @@
           "";
         let d = pub ? new Date(pub) : new Date();
         if (Number.isNaN(d.getTime())) d = new Date();
+        var tag = classifyHeadline(title);
+        var crit = isCriticalHeadline(title) || tag === "breaking";
         return {
           id: "rss-" + sourceLabel + "-" + i + "-" + d.getTime(),
           time: d,
-          tag: classifyHeadline(title),
+          tag: tag,
           src: sourceLabel,
           headline: title,
           link: link,
+          critical: crit,
           seed: false,
         };
       })
@@ -744,13 +763,16 @@
                   const title = (it.title || "").trim();
                   if (!title || isDeniedHeadline(title)) return;
                   const d = it.pubDate ? new Date(it.pubDate) : new Date();
+                  var tag = classifyHeadline(title);
+                  var crit = isCriticalHeadline(title) || tag === "breaking";
                   collected.push({
                     id: "r2j-" + feed.label + "-" + i + "-" + d.getTime(),
                     time: Number.isNaN(d.getTime()) ? new Date() : d,
-                    tag: classifyHeadline(title),
+                    tag: tag,
                     src: feed.label,
                     headline: title,
                     link: it.link || it.url || "",
+                    critical: crit,
                     seed: false,
                   });
                 });
@@ -814,6 +836,15 @@
     } else {
       body.innerHTML = filtered
         .map(function (n) {
+          const critical = isCriticalItem(n);
+          const tagLabel = critical
+            ? "breaking"
+            : n.tag === "breaking"
+              ? "breaking"
+              : n.tag;
+          const tagClass = critical || tagLabel === "breaking"
+            ? "breaking tag-breaking"
+            : n.tag;
           const headline = n.link
             ? '<a class="flash-headline" href="' +
               escapeAttr(n.link) +
@@ -824,19 +855,22 @@
               escapeHtml(n.headline) +
               "</div>";
           return (
-            '<article class="flash ' +
-            (n.seed ? "seed" : "") +
+            '<article class="flash news-item ' +
+            (n.seed ? "seed " : "") +
+            (critical ? "critical " : "") +
             '" data-tag="' +
-            n.tag +
+            (n.tag || "") +
+            '" data-critical="' +
+            (critical ? "true" : "false") +
             '">' +
             '<div class="flash-time">' +
             flashTimeLabel(n.time) +
             "</div><div>" +
             '<div class="flash-meta">' +
             '<span class="flash-tag ' +
-            n.tag +
+            tagClass +
             '">' +
-            n.tag.toUpperCase() +
+            String(tagLabel).toUpperCase() +
             "</span>" +
             '<span class="flash-src">' +
             escapeHtml(n.src) +
@@ -850,11 +884,19 @@
 
     if (badge) {
       badge.className = "panel-badge";
-      badge.textContent = newsStatus;
-      if (newsStatus === "LIVE") badge.classList.add("live");
-      else if (newsStatus === "SEED" || newsStatus === "DEMO")
-        badge.classList.add("demo");
-      else badge.classList.add("unavailable");
+      var anyCritical = newsItems.some(function (n) {
+        return isCriticalItem(n);
+      });
+      if (anyCritical) {
+        badge.textContent = "BREAKING";
+        badge.classList.add("breaking");
+      } else {
+        badge.textContent = newsStatus;
+        if (newsStatus === "LIVE") badge.classList.add("live");
+        else if (newsStatus === "SEED" || newsStatus === "DEMO")
+          badge.classList.add("demo");
+        else badge.classList.add("unavailable");
+      }
     }
   }
 
@@ -987,13 +1029,20 @@
         if (!title || isDeniedHeadline(title)) continue;
         var d = it.time ? new Date(it.time) : new Date();
         if (Number.isNaN(d.getTime())) d = new Date();
+        var tag = it.tag || classifyHeadline(title);
+        var crit =
+          it.critical === true ||
+          String(tag).toLowerCase() === "breaking" ||
+          String(tag).toLowerCase() === "critical" ||
+          isCriticalHeadline(title);
         out.push({
           id: it.id || "static-" + i + "-" + d.getTime(),
           time: d,
-          tag: it.tag || classifyHeadline(title),
+          tag: tag,
           src: it.src || "WIRE",
           headline: title,
           link: it.link || "",
+          critical: crit,
           seed: false,
         });
       }
